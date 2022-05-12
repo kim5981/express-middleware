@@ -53,20 +53,23 @@ router.get('/:id/posts', validateUserId, async (req, res,next) => {
     res.json(result)
     }
     catch(err){
-      (next)
+      (next(err))
     }
 });
 
-router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
-  // RETURN THE NEWLY CREATED USER POST
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
-  console.log(req.user)
-  console.log(req.text)
+router.post('/:id/posts', 
+validateUserId, 
+validatePost, 
+(req, res, next) => {
+  Post.insert({ user_id: req.params.id, text: req.text})
+    .then(newUser => {
+      res.json(newUser)
+    })
+    .catch(next)
 });
 
-//*error handling middleware
-router.use((err, req, res, next) => {
+
+router.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500 ).json({
     customMessage: "oh no! 😵",
     message: err.message,
