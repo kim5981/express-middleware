@@ -6,11 +6,17 @@ const {
   validatePost
 } = require("../middleware/middleware");
 
+const User = require("./users-model")
+const Post = require("../posts/posts-model")
+
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // RETURN AN ARRAY WITH ALL THE USERS
-  console.log("something something")
+router.get('/', (req, res, next) => {
+  User.get()
+    .then(users => {
+      res.json(users)
+    })
+    .catch(next)
 });
 
 router.get('/:id', validateUserId, (req, res) => {
@@ -56,5 +62,13 @@ router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
   console.log(req.text)
 });
 
+//*error handling middleware
+router.use((err, req, res, next) => {
+  res.status(err.status || 500 ).json({
+    customMessage: "oh no! 😵",
+    message: err.message,
+    stack: err.stack
+  })
+})
 
 module.exports = router;
